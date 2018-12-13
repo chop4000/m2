@@ -1,0 +1,254 @@
+<!-- memogo2 by chris hopkins 2018 -->
+<html>
+
+	<header>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+
+
+		<style type="text/css">
+
+			#black_overlay {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				top: 0px;
+				left: 0px;
+				background-color: #000;
+				z-index: 10;
+				opacity: 0.5;
+			}
+
+			body {
+				font-size: 18px;
+				font-family: "Trebuchet MS", Helvetica, sans-serif;
+				background: #9ad1ed; /* Old browsers */
+				background: -moz-linear-gradient(45deg, #9ad1ed 0%, #5eacd6 31%, #072ec6 100%); /* FF3.6-15 */
+				background: -webkit-linear-gradient(45deg, #9ad1ed 0%,#5eacd6 31%,#072ec6 100%); /* Chrome10-25,Safari5.1-6 */
+				background: linear-gradient(45deg, #9ad1ed 0%,#5eacd6 31%,#072ec6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9ad1ed', endColorstr='#072ec6',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+			}
+
+			#page_container {
+				width: 97%;
+			}
+
+			.memo_container {
+				width: 99%;
+				height: 100px;
+				line-height: 100px;
+				margin-top: 4px;
+				margin-bottom: 4px;
+				padding-left: 2%;
+				padding-right: 2%;
+				-webkit-transition: top 2s; /* Safari */
+  				transition: top 2s;
+
+				/* Background gradient */
+				background: #b6b6b6; /* Old browsers */
+				background: #f0f0f0; /* Old browsers */
+				background: -moz-linear-gradient(-45deg, #f0f0f0 0%, #efefef 38%, #fdfdfd 100%); /* FF3.6-15 */
+				background: -webkit-linear-gradient(-45deg, #f0f0f0 0%,#efefef 38%,#fdfdfd 100%); /* Chrome10-25,Safari5.1-6 */
+				background: linear-gradient(135deg, #f0f0f0 0%,#efefef 38%,#fdfdfd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f0f0', endColorstr='#fdfdfd',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+			}
+
+
+			#new_memo_textarea {
+				float: left;
+				width: 82%;
+				position: relative;
+				top: 0px;
+				left: 0px;
+				height: 95px;
+				resize: none;
+				border: 0px;
+				font-family: "Trebuchet MS", Helvetica, sans-serif;
+				font-size: 18px;
+				line-height: 95px;
+				overflow: hidden;
+				background-color: transparent;
+			}
+
+			#new_memo_container {
+				display: none;
+				width: 99%;
+				height: 100px;
+				line-height: 100px;
+				margin-top: 4px;
+				margin-bottom: 4px;
+				padding-left: 2%;
+				padding-right: 2%;
+				background-color: #fdff8c;
+				overflow: hidden;
+				transition: display 0.5s;
+				-webkit-transition: display 0.5s;
+			}
+
+			#yes-circle {
+				position: relative;
+				left: 0px;
+				height: 100px;
+				width: 8%;
+				text-align: center;
+				line-height: 100px;
+				overflow: hidden;
+				float: left;
+				font-size: 42px;
+				color: #00dd00;
+				
+			}
+
+			#no-circle {
+				margin-left: 10px;
+				height: 100px;
+				line-height: 100px;
+				overflow: hidden;
+				float: left;
+				font-size: 42px;
+				color: #dd0000;
+				width: 8%;
+				text-align: center;
+				
+			}
+
+			#no-circle:hover {
+				color: #fff;
+				text-shadow: 0px 0px 10px #000;
+			}
+
+			#yes-circle:hover {
+				color: #fff;
+				text-shadow: 0px 0px 10px #000;
+			}
+
+			.clickable-icon {
+				cursor: pointer;
+			}
+
+		</style>
+
+		<script src="./jquery.min.js"></script>
+
+	</header>
+
+	<body>
+
+		<div id="page_container">
+
+			<span id="secret_reload_button">w</span>elcome to memog<span id="secret_deletron_button">o</span>.
+
+			<br><br>
+
+			<a id="add_new_memo_link" href="javascript:function(0);">add new memo</a>
+
+			<br><br>
+
+			<div id="new_memo_container">
+				<textarea id="new_memo_textarea">hi</textarea>
+				<i id="yes-circle" class="fas fa-check-circle clickable-icon"></i>
+				<i id="no-circle" class="clickable-icon fas fa-times-circle"></i>
+			</div>
+
+			<div id="memo_target"></div>
+		
+		</div>
+
+	</body>
+
+	<script>
+	
+		var iterator = 0;
+
+		$('#load_all_memos_link').click( () => {
+
+			loadMemos();
+
+		});
+
+		function loadMemos() {
+
+			$.ajax({
+			    url: '/load-all-memos',
+			    type: 'get',
+			    success: function(data) {
+				    	
+			    	while ( String(data[iterator]) == "[object Object]" )
+			    	{
+
+			    		$("#memo_target").after(
+			    			"<div class='memo_container'>" +
+			    			data[iterator].memo_text +
+			    			"</div>"
+			    		);
+
+			    		iterator++;
+
+			    	}
+
+			    	iterator = 0;
+
+			    }, error: function(data) {
+
+			    	console.log('error:\n');
+			    	console.log(data);
+
+			    }
+
+			});
+
+		}
+
+		$(document).on('click', '#no-circle', function() {
+
+			$('#new_memo_container').css('display','none');
+			$('#new_memo_textarea').val('');
+
+		});
+
+		$(document).on('click', '#yes-circle', function() {
+
+			$.ajax({
+			    url: '/buh',
+			    type: 'post',
+			    data: { 
+			    	jedster: 'bobo',
+			    	memo_text: $('#new_memo_textarea').val()
+			    },
+			    success: function(data) {
+
+			    	$('.memo_container').remove();
+
+			    	loadMemos();
+
+			    }, error: function(data) {
+
+			    	console.log('error: ' + data );
+
+			    }
+			});
+
+			$('#new_memo_container').css('display','none');
+			$('#new_memo_textarea').val('');
+
+		});
+
+		$('#add_new_memo_link').click( function() {
+			$('#new_memo_container').css('display','block');
+			$('#new_memo_textarea').val('');
+		});
+
+		$('#secret_reload_button').click(function(){
+			loadMemos();
+		});
+
+		$('#secret_deletron_button').click(function(){
+			$('.memo_container').remove();
+		});
+
+		$(document).ready( () => {
+			loadMemos();
+		});
+
+	</script>
+
+</html>
